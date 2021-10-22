@@ -4,8 +4,9 @@ import axios from 'axios'
 // import { Toast } from 'vant'
 // import $router from "@/router"
 // import { logout } from "@/api/login"
-// import { getToken, removeAll } from './auth'
+import { getToken, removeAll } from './auth'
 import { BASE_URL } from "../config"
+import { Response } from 'types/common'
 // import { encryptParams } from "./crypto"
 
 //全局发送post请求的默认头部content-type类型,定义类型为JSON格式，并且字符编码为utf-8
@@ -27,17 +28,9 @@ const black = ["/pc/cms/update/getQRcodeUrl"]
 // request interceptor
 service.interceptors.request.use(
   config => {
-    // if(getToken()) {
-    //   config["headers"].token = getToken() || ""
-    // }
-
-    // config["headers"].platform = platform || ""
-
-    // if (config.method.toLocaleLowerCase() === "get") {
-    //   config.params = encryptParams(config.params, true)
-    // } else {
-    //   config.data = encryptParams(config.data, false)
-    // }
+    if(getToken()) {
+      (config as any)["headers"].authorization = "Bearer " + getToken() || ""
+    }
 
     return config
   },
@@ -57,19 +50,15 @@ service.interceptors.response.use(
    * 以下代码均为样例，请结合自生需求加以修改，若不需要，则可删除
    */
   response => {
-    const res = response.data
+    const res: Response<any> = (response.data as any)
 
-    if (res.code === "400") {
-      // Message.warning(res.msg)
-      // Toast(res.msg)
+    if (res.code === 400) {
     }
 
-    if (res.code === "500") {
-      // Message.error(res.msg)
-      // Toast(res.msg)
+    if (res.code === 500) {
     }
 
-    if (res.code === "402") {
+    if (res.code === 402) {
     }
 
     return res

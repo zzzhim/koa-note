@@ -20,6 +20,13 @@ router.post('/login',async (ctx, next) => {
   ctx.body = data
 })
 
+
+router.post('/article/list',async (ctx, next) => {
+  const { id, username } = ctx.state.user
+
+  ctx.body = 111
+})
+
 module.exports = {
   router
 }

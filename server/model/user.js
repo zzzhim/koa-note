@@ -20,7 +20,7 @@ const User = sequelize.define(
         const token = jwt.sign({
           id: this.getDataValue('id'),
           username: this.getDataValue('username'),
-          password: this.getDataValue('password'),
+          // password: this.getDataValue('password'),
         }, SECRET_KEY, { expiresIn: '6h' })
 
         return token

@@ -1,19 +1,25 @@
 import React from 'react'
+import { history } from 'umi'
 import styles from './index.scss'
 import { login } from "../../../api/login"
+import { setToken, setUserInfo } from "../../../utils/auth"
+import { Response } from "../../../types/common"
+import { UserInfo } from "../../../types/login"
+
 import { Form, Input, Button, Checkbox } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 
 export default function Page() {
   const onFinish = async (values: any) => {
-    const res = await login({
+    const res: Response<UserInfo> = await login({
       username: values.username,
       password: values.password,
     })
 
-    console.log(res)
     if(res.code === 200) {
-      
+      setUserInfo(res.data)
+      setToken(res.data?.token || "")
+      history.push('/dashboard')
     }
   };
 

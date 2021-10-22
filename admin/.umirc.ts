@@ -11,6 +11,7 @@ export default defineConfig({
   },
   routes: [
     { path: '/login', component: '@/pages/login' },
+    { path: '/dashboard', component: '@/pages/dashboard' },
   ],
   fastRefresh: {},
 })

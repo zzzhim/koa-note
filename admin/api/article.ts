@@ -5,9 +5,9 @@ import request from "../utils/request"
  * 
  * @description 登录
  */
-export const login = (params: any): any => {
+export const articleList = (params: any): any => {
   return request({
-    url: "/login",
+    url: "/article/list",
     method: "post",
     data: params,
   })
