@@ -3,11 +3,11 @@ import request from "../utils/request"
 
 /**
  * 
- * @description 登录
+ * @description 添加文章
  */
-export const articleList = (params: any): any => {
+export const articleAdd = (params: any): any => {
   return request({
-    url: "/article/list",
+    url: "/article/add",
     method: "post",
     data: params,
   })

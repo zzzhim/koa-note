@@ -23,6 +23,7 @@
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
     "@umijs/plugin-sass": "^1.1.1",
+    "antd": "^4.16.13",
     "axios": "^0.23.0",
     "js-cookie": "^3.0.1",
     "react": "17.x",
