@@ -12,3 +12,27 @@ export const articleAdd = (params: any): any => {
     data: params,
   })
 }
+
+/**
+ * 
+ * @description 文章列表
+ */
+export const articleList = (params: any): any => {
+  return request({
+    url: "/article/list",
+    method: "get",
+    params,
+  })
+}
+
+/**
+ * 
+ * @description 删除文章
+ */
+export const articleDel = (params: any): any => {
+  return request({
+    url: "/article/del",
+    method: "post",
+    data: params,
+  })
+}

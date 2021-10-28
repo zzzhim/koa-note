@@ -41,6 +41,12 @@ export default defineConfig({
           path: '/article/add',
           component: '@/pages/article/add',
           title: "新增",
+        },
+        {
+          exact: true,
+          path: '/article/edit',
+          component: '@/pages/article/edit',
+          title: "编辑",
         }
       ]
     },
