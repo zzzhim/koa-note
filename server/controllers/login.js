@@ -1,8 +1,9 @@
 const { UserModel } = require("../model/user")
+const response = require("../utils/response")
 
 class Login {
   async login({ username, password }) {
-    const res = await UserModel.findOne({
+    const data = await UserModel.findOne({
       attributes: [ 'username', 'password', 'id' ],
       where: {
         username,
@@ -10,23 +11,18 @@ class Login {
       }
     })
 
-    if(res && res.dataValues) {
-      return {
-        code: 200,
-        message: "查询成功",
-        data: {
-          id: res.dataValues.id,
-          username: res.dataValues.username,
-          token: res.token,
+    if(data && data.dataValues) {
+      return response.success(
+        200,
+        {
+          id: data.dataValues.id,
+          username: data.dataValues.username,
+          token: data.token,
         }
-      }
+      )
     }
 
-    return {
-      code: 500,
-      message: "用户不存在",
-      data: {}
-    }
+    return response.info(500, {}, '账户或密码错误')
   }
 }
 

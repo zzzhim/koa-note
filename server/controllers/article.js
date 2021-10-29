@@ -1,4 +1,5 @@
 const { ArticleModel } = require("../model/article")
+const response = require("../utils/response")
 
 class Article {
   /**
@@ -7,25 +8,69 @@ class Article {
    */
   async add({ title, tags, content }) {
     try {
+      if(typeof title !== "string" || !title.length) {
+        return response.error(
+          500,
+          {},
+          '标题不能为空',
+        )
+      }
+
+      if(typeof tags !== "string" || !tags.length) {
+        return response.error(
+          500,
+          {},
+          '标签不能为空',
+        )
+      }
+
+      if(typeof content !== "string" || !content.length) {
+        return response.error(
+          500,
+          {},
+          '文章内容不能为空',
+        )
+      }
+
       const article = await ArticleModel.create({
         title,
         tags,
         content,
       })
 
-      return {
-        code: 200,
-        message: "保存成功",
-        data: {}
-      }
+      return response.success(200)
     } catch (error) {
       console.log(error)
 
-      return {
-        code: 500,
-        message: "保存失败",
-        data: {}
-      }
+      return response.error(500)
+    }
+  }
+
+  /**
+   * 
+   * @description 更新文章
+   */
+  async update({ id, title, tags, content }) {
+    try {
+      const article = await ArticleModel.update(
+        {
+          title,
+          tags,
+          content,
+          updateTime: new Date(),
+        },
+        {
+          where: {
+            id,
+          }
+        }
+      )
+
+      return response.success(200)
+    } catch (error) {
+      console.log(error)
+
+      return response.error(500)
     }
   }
 
@@ -53,22 +98,17 @@ class Article {
         offset: parseInt(pageSize * (pageNo - 1)),
       })
 
-      return {
-        code: 200,
-        message: '操作成功',
-        data: {
+      return response.success(
+        200,
+        {
           count: count,
           list: rows,
         }
-      }
+      )
     } catch (error) {
       console.log(error)
 
-      return {
-        code: 500,
-        message: "操作失败",
-        data: {}
-      }
+      return response.error(500)
     }
   }
 
@@ -79,11 +119,11 @@ class Article {
   async del({ id }) {
     try {
       if(!id) {
-        return {
-          code: 500,
-          message: 'id不能为空',
-          data: {}
-        }
+        return response.error(
+          500,
+          {},
+          'id不能为空',
+        )
       }
 
       const data = await ArticleModel.update(
@@ -97,19 +137,11 @@ class Article {
         }
       )
 
-      return {
-        code: 200,
-        message: '操作成功',
-        data: {}
-      }
+      return response.success(200)
     } catch (error) {
       console.log(error)
 
-      return {
-        code: 500,
-        message: "操作失败",
-        data: {}
-      }
+      return response.error(500)
     }
   }
 
@@ -119,19 +151,41 @@ class Article {
    */
   async details({ id }) {
     try {
-      
+      const data = await ArticleModel.findOne({
+        attributes: [
+          'id',
+          'title',
+          'tags',
+          'content',
+        ],
+        where: {
+          isDelete: '0',
+          id,
+        }
+      })
+
+      if(data) {
+        return response.success(
+          200,
+          {
+            article: data,
+          },
+        )
+      }
+
+      return response.info(
+        200,
+        {
+          article: {},
+        },
+        '该条数据不存在'
+      )
     } catch (error) {
       console.log(error)
 
-      return {
-        code: 500,
-        message: "操作失败",
-        data: {}
-      }
+      return response.error(500)
     }
   }
-
-  
 }
 
 module.exports = new Article()

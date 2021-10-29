@@ -8,7 +8,8 @@ const sequelize = new Sequelize('sql_data', 'root', 'huowenkeji', {
   },
   dialectOptions: {
     charset: "utf8",
-  }
+  },
+  timezone: '+08:00',
 })
 
 try {

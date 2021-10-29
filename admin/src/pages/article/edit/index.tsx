@@ -1,51 +1,56 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import styles from './index.scss'
-import { articleAdd } from '../../../../api/article'
+import { articleUpdate, articleDetails } from '../../../../api/article'
 import {
   Button,
   Input,
   Form,
   Tag,
   Tooltip,
+  message,
 } from 'antd'
 import {
   PlusOutlined,
 } from '@ant-design/icons'
-// import { ValidateStatus } from 'antd/lib/form/FormItem'
+import { history } from 'umi'
 
 export default function Page() {
-  // const [ title , setTitle] = useState<{
-  //   value: string;
-  //   validateStatus?: ValidateStatus;
-  //   errorMsg?: string | null;
-  // }>({
-  //   value: '',
-  // })
-
-  // const [ tags , setTags] = useState<{
-  //   value: string;
-  //   validateStatus?: ValidateStatus;
-  //   errorMsg?: string | null;
-  // }>({
-  //   value: '',
-  // })
-
-  // const [ content , setContent] = useState<{
-  //   value: string;
-  //   validateStatus?: ValidateStatus;
-  //   errorMsg?: string | null;
-  // }>({
-  //   value: '',
-  // })
+  const [ form ] = Form.useForm();
+  const [ article, setArticle ] = useState<any>({})
 
   /**
    * 
-   * @description 添加文章
+   * @description 更新文章
    */
-  const articleAddApi = async (params: any) => {
-    const res = await articleAdd(params)
+  const articleUpdateApi = async (params: any) => {
+    const res = await articleUpdate(params)
 
-    console.log(res)
+    if(res.code === 200) {
+      message.success('编辑成功')
+    }else {
+      message.warning('编辑失败')
+    }
+  }
+
+  const articleDetailsApi = async () => {
+    const { id = null } = history.location.query as any
+
+    if(!id) {
+      return 
+    }
+
+    const res = await articleDetails({ id })
+
+    if(res.code === 200) {
+      setArticle(res.data.article)
+      console.log(res.data.article)
+
+      form.setFieldsValue({
+        title: res.data.article.title || '',
+        tags: res.data.article.tags,
+        content: res.data.article.content || '',
+      })
+    }
   }
 
   /**
@@ -57,8 +62,8 @@ export default function Page() {
     tags: string[],
     content: string
   }) => {
-    console.log('Success:', values);
-    articleAddApi({
+    articleUpdateApi({
+      id: history.location.query?.id,
       ...values,
       tags: Array.isArray(values.tags) ? values.tags.join(',') : values.tags,
     })
@@ -72,58 +77,18 @@ export default function Page() {
     console.log('Failed:', errorInfo);
   };
 
-  // /**
-  //  * 
-  //  * @description 校验标题
-  //  */
-  // const validateTitle = (
-  //   val: string,
-  // ): { validateStatus: ValidateStatus; errorMsg: string | null } => {
-  //   if (val?.length) {
-  //     return {
-  //       validateStatus: 'success',
-  //       errorMsg: null,
-  //     };
-  //   }
-  //   return {
-  //     validateStatus: 'error',
-  //     errorMsg: '请输入标题',
-  //   };
-  // }
-
-  // const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   setTitle(() => ({
-  //     ...validateTitle(e.target.value),
-  //     value: e.target.value,
-  //   }))
-  // }
-
-  // /**
-  //  * 
-  //  * @description 校验内容
-  //  */
-  // const validateContent = (
-  //   val: string,
-  // ): { validateStatus: ValidateStatus; errorMsg: string | null } => {
-  //   if (val?.length) {
-  //     return {
-  //       validateStatus: 'success',
-  //       errorMsg: null,
-  //     };
-  //   }
-  //   return {
-  //     validateStatus: 'error',
-  //     errorMsg: '请输入内容',
-  //   };
-  // }
+  useEffect(() => {
+    articleDetailsApi()
+  }, [])
 
   return (
     <div>
       <Form
+        form={form}
         name="basic"
-        // labelCol={{ span: 8 }}
-        // wrapperCol={{ span: 16 }}
-        // initialValues={{ remember: true }}
+        initialValues={{
+          title: article?.title
+        }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
@@ -133,15 +98,11 @@ export default function Page() {
         <Form.Item
           label="标题"
           name="title"
-          // validateStatus={title.validateStatus}
-          // help={title.errorMsg}
           rules={[{ required: true, message: '请输入文章标题' }]}
         >
           <Input
             className={styles.title}
-            // value={title.value}
             placeholder="请输入文章标题"
-            // onChange={handleTitleChange}
           />
         </Form.Item>
 
@@ -158,11 +119,9 @@ export default function Page() {
           label="内容"
           name="content"
           rules={[{ required: true, message: '请输入文章内容' }]}
-          // validateStatus={content.validateStatus}
-          // help={content.errorMsg}
         >
           {/* <div id="editor"></div> */}
-          <Editor />
+          <Editor defaultContent={article?.content} />
         </Form.Item>
 
         <Form.Item style={{ textAlign: 'right' }}>
@@ -175,7 +134,7 @@ export default function Page() {
   );
 }
 
-function EditableTagGroup(props: any) {
+function EditableTagGroup({ value = '', onChange }: any) {
   const [ state, setState ] = useState({
     tags: ([] as string[]),
     inputVisible: false,
@@ -244,8 +203,15 @@ function EditableTagGroup(props: any) {
   }
 
   useEffect(() => {
-    props.onChange(state.tags)
+    onChange(state.tags)
   }, [ state.tags ])
+
+  useEffect(() => {
+    setState(data => ({
+      ...data,
+      tags: typeof value === 'string' ? value.split(',') : data.tags,
+    }))
+  }, [ value ])
 
   const { tags, inputVisible, inputValue, editInputIndex, editInputValue } = state
 
@@ -331,13 +297,14 @@ function EditableTagGroup(props: any) {
   )
 }
 
-function Editor(props: any) {
-  useEffect(() => {
-    // articleList({})
+function Editor({ defaultContent = '', value = '', onChange }: any) {
+  const [ editor, setEditor ] = useState<any>(null)
 
-    var editor = (window as any).editormd("editor", {
+  useEffect(() => {
+    const editor = (window as any).editormd("editor", {
       width: "100%",
       height: 740,
+      value: '1',
       // theme : "dark",
       // previewTheme : "dark",
       // editorTheme : "pastel-on-dark",
@@ -377,15 +344,23 @@ function Editor(props: any) {
       },
       onchange() {
         const val = this.getValue()
-        props.onChange(val)
+        onChange(val)
       },
       path: "https://cdn.jsdelivr.net/npm/editor.md@1.5.0/lib/"  // Autoload modules mode, codemirror, marked... dependents libs path
     })
 
-    return () => {
-      
-    }
+    setEditor(() => editor)
+
+    return () => {}
   }, [])
+
+  useEffect(() => {
+    if(editor) {
+      setTimeout(() => {
+        editor.setValue(defaultContent)
+      }, 200)
+    }
+  }, [ defaultContent ])
 
   return (
     <>

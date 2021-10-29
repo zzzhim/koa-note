@@ -7,6 +7,7 @@ import {
   Form,
   Tag,
   Tooltip,
+  message,
 } from 'antd'
 import {
   PlusOutlined,
@@ -45,7 +46,11 @@ export default function Page() {
   const articleAddApi = async (params: any) => {
     const res = await articleAdd(params)
 
-    console.log(res)
+    if(res.code === 200) {
+      message.success('保存成功')
+    }else {
+      message.success('保存失败')
+    }
   }
 
   /**

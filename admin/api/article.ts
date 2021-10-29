@@ -15,6 +15,18 @@ export const articleAdd = (params: any): any => {
 
 /**
  * 
+ * @description 更新文章
+ */
+export const articleUpdate = (params: any): any => {
+  return request({
+    url: "/article/update",
+    method: "post",
+    data: params,
+  })
+}
+
+/**
+ * 
  * @description 文章列表
  */
 export const articleList = (params: any): any => {
@@ -34,5 +46,18 @@ export const articleDel = (params: any): any => {
     url: "/article/del",
     method: "post",
     data: params,
+  })
+}
+
+
+/**
+ * 
+ * @description 文章详情
+ */
+export const articleDetails = (params: any): any => {
+  return request({
+    url: "/article/details",
+    method: "get",
+    params,
   })
 }
