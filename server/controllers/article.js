@@ -8,30 +8,6 @@ class Article {
    */
   async add({ title, tags, content }) {
     try {
-      if(typeof title !== "string" || !title.length) {
-        return response.error(
-          500,
-          {},
-          '标题不能为空',
-        )
-      }
-
-      if(typeof tags !== "string" || !tags.length) {
-        return response.error(
-          500,
-          {},
-          '标签不能为空',
-        )
-      }
-
-      if(typeof content !== "string" || !content.length) {
-        return response.error(
-          500,
-          {},
-          '文章内容不能为空',
-        )
-      }
-
       const article = await ArticleModel.create({
         title,
         tags,
@@ -62,6 +38,7 @@ class Article {
         {
           where: {
             id,
+            isDelete: '0',
           }
         }
       )
@@ -118,14 +95,6 @@ class Article {
    */
   async del({ id }) {
     try {
-      if(!id) {
-        return response.error(
-          500,
-          {},
-          'id不能为空',
-        )
-      }
-
       const data = await ArticleModel.update(
         {
           isDelete: '1',
